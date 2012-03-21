@@ -5,3 +5,5 @@
 #Aptana project file
 .project
 
+#Test file
+test.php
