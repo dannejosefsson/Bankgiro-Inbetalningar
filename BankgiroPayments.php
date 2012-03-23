@@ -9,7 +9,7 @@ require_once './BankgiroPaymentsDeposit.php';
 * @author		Daniel Josefsson <dannejosefsson@gmail.com>
 * @copyright	Copyright © 2012 Daniel Josefsson. All rights reserved.
 * @license		GPL v3
-* @version		v0.1
+* @version		v0.2
 * @uses			BankgiroPaymentDeposit
 */
 class BankgiroPayments
@@ -67,6 +67,7 @@ class BankgiroPayments
 		{
 
 		}
+		$this->clearDeposits();
 	}
 
 	/**
@@ -208,11 +209,60 @@ class BankgiroPayments
 	 */
 	public function getPostsCounts()
 	{
-		$postsCounts = array(	$this->getDepositsCount(),
+		$postsCounts = array(	0,
 								0,
 								0,
-								0);
+								$this->getDepositsCount(),
+								);
 		return $postsCounts;
 	}
 
+	/**
+	* Clear deposits.
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.2
+	* @return	BankgiroPayments
+	*/
+	public function clearDeposits()
+	{
+		unset($this->_deposits);
+		$this->_deposits = array();
+		return $this;
+	}
+
+	/**
+	* Add new BankgiroPaymentsDeposit to container.
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.2
+	* @return	int BankgiroPayments
+	*/
+	public function addDeposit()
+	{
+		$this->_deposits[] = new BankgiroPaymentsDeposit();
+		return $this;
+	}
+
+	/**
+	* Return index to the latest inserted deposit.
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.2
+	* @return	int $keyToDeposit
+	*/
+	public function lastDepositIndex()
+	{
+		end($this->_deposits);
+		return key($this->_deposits);
+	}
+
+	/**
+	* Returns wanted deposit
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.2
+	* @param 	int $index
+	* @return	BankgiroPaymentsDeposit
+	 */
+	public function getDeposit( $index )
+	{
+		return $this->_deposits[$index];
+	}
 }
