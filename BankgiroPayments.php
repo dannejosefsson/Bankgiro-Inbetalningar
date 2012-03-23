@@ -22,6 +22,9 @@ class BankgiroPayments
 	protected $_filename;
 	protected $_fileData;
 
+	// Return options
+	protected $_stripLeadingZeros;
+
 	// Start post content (01)
 	protected $_layout;
 	protected $_version;
@@ -42,8 +45,8 @@ class BankgiroPayments
 	const STATE_PARSING	= 'Parsing file';
 	const STATE_START_POST_PARSED = 'Start post parsed';
 	const STATE_END_POST_PARSED = 'END post parsed';
-	const STATE_PAYMENT_OPENING_POST_PARSED = 'Payment opening post parsed';
-	const STATE_PAYMENT_SUMMATION_POST_PARSED = 'Payment summation post parsed';
+	const STATE_OPENING_POST_PARSED = 'Opening post parsed';
+	const STATE_SUMMATION_POST_PARSED = 'Summation post parsed';
 	const STATE_DONE	= 'Done';
 
 	/**
@@ -59,11 +62,22 @@ class BankgiroPayments
 	 	$this->_state = self::STATE_IDLE;
 		if ( is_array($options) )
 		{
-			$this->setFilename($options[0]);
+			$i = 0;
+			$this->setFilename($options[$i++]);
+			if ( isset($options[$i]) )
+			{
+				(is_bool($options[$i])) ? $this->_stripLeadingZeros = $options[$i] : $this->_stripLeadingZeros = false;
+				$i++;
+			}
+			else
+			{
+				$this->_stripLeadingZeros = false;
+			}
 		}
 		elseif ( is_string( $options ) )
 		{
 			$this->setFilename($options);
+			$this->_stripLeadingZeros = false;
 		}
 		$this->_fileData	= array();
 		$this->_error		= array();
@@ -200,7 +214,9 @@ class BankgiroPayments
 		if ( strcmp($this->_state, self::STATE_ERROR) )
 		{
 			// Openingpost
-			$openingPost;
+			$bankgiroAccount;
+			$plusgiroAccount;
+			$currency;
 			foreach ($this->_fileData as $line)
 			{
 				$lineType = substr($line, 0, 2);
@@ -215,21 +231,26 @@ class BankgiroPayments
 					//Opening post
 					case '05':
 						if ( 	strcmp($this->_state, self::STATE_START_POST_PARSED) ||
-						strcmp($this->_state, self::STATE_PAYMENT_SUMMATION_POST_PARSED) )
+								strcmp($this->_state, self::STATE_SUMMATION_POST_PARSED) )
 						{
-							;
+							$this->_state = self::STATE_OPENING_POST_PARSED;
+							$this->parseOpeningPost($lineData, $bankgiroAccount, $plusgiroAccount, $currency, $this->_stripLeadingZeros);
+
+							echo "<pre>";
+							var_dump($bankgiroAccount, $plusgiroAccount, $currency);
+							echo "</pre>";
 						}
 						else
 						{
 							$this->_state = self::STATE_ERROR;
-							$this->_error[] = 'Start post or payment summation post was not parsed before next payment start post.';
+							$this->_error[] = 'Start post or payment summation post was not parsed before next opening post.';
 						}
 						break;
 
 					// End post
 					case '70':
 						if ( 	strcmp($this->_state, self::STATE_START_POST_PARSED) ||
-						strcmp($this->_state, self::STATE_PAYMENT_SUMMATION_POST_PARSED) )
+								strcmp($this->_state, self::STATE_SUMMATION_POST_PARSED) )
 						{
 							$this->_state = self::STATE_END_POST_PARSED;
 							$this->parseEndPost($lineData);
@@ -307,5 +328,31 @@ class BankgiroPayments
 			$this->_error[] = $error;
 		}
 		// Reserved placeholders (lineData[32-77]) are not used.
+	}
+
+	/**
+	 * Parses opening post (05).
+	 * @autor	Daniel Josefsson <dannejosefsson@gmail.com>
+	 * @since	v0.2
+	 * @param string $lineData
+	 * @param string $bankgiroAccount
+	 * @param string $plusgiroAccount
+	 * @param string $currency
+	 * @param bool	 $stripLeadingZeros
+	 */
+	private function parseOpeningPost( $lineData, &$bankgiroAccount, &$plusgiroAccount, &$currency, $stripLeadingZeros = 1 )
+	{
+		if ( $stripLeadingZeros )
+		{
+			$bankgiroAccount = (string) ((int) substr($lineData, 0, 10));
+			$plusgiroAccount = ltrim(substr($lineData, 10, 10), "0 ");
+		}
+		else
+		{
+			$bankgiroAccount = substr($lineData, 0, 10);
+			$plusgiroAccount = substr($lineData, 10, 10);
+		}
+		$currency = substr($lineData, 20, 3);
+		// Reserved placeholders (lineData[23-77]) are not used.
 	}
 }
