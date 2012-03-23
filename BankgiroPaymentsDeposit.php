@@ -253,7 +253,7 @@ class BankgiroPaymentsDeposit
 	*/
 	public function setPaymentValue( $paymentValue )
 	{
-	$this->_paymentValue = $PaymentValue;
+	$this->_paymentValue = $paymentValue;
 	return $this;
 	}
 
@@ -266,7 +266,7 @@ class BankgiroPaymentsDeposit
 	*/
 	public function setPaymentCount( $paymentCount )
 	{
-	$this->_paymentCount = $PaymentCount;
+	$this->_paymentCount = $paymentCount;
 	return $this;
 	}
 
@@ -279,7 +279,7 @@ class BankgiroPaymentsDeposit
 	*/
 	public function setPaymentType( $paymentType )
 	{
-	$this->_paymentType = $PaymentType;
+	$this->_paymentType = $paymentType;
 	return $this;
 	}
 
