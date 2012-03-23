@@ -169,6 +169,17 @@ class BankgiroPaymentsFileParser
 	}
 
 	/**
+	* Returns the parsed BankgiroPayments
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.4
+	* @return	BankgiroPayments
+	 */
+	public function getBankgiroPayments()
+	{
+		return $this->_bgp;
+	}
+
+	/**
 	* Reads and stores earlier given file.
 	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	* @since	v0.2
@@ -365,7 +376,7 @@ class BankgiroPaymentsFileParser
 	/**
 	* Parses summation post (15).
 	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
-	* @since	v0.4
+	* @since	v0.2
 	* @param 	BankgiroPayments	$bgp
 	* @param 	string				$lineData
 	* @return	BankgiroPayments
@@ -388,12 +399,13 @@ class BankgiroPaymentsFileParser
 								substr($lineData, 66, 3),
 								"currency");
 
-		// Check so that all payment posts are parsed
-		if ($bgp->getDeposit($depositIndex)->getPaymentCount() - (int) substr($lineData, 69, 8))
-		{
-
-		}
-
+		$this->checkConsistancy($bgp->getDeposit($depositIndex)->getPaymentCount(),
+								(int) substr($lineData, 69, 8),
+								"payment count");
+		$bgp->getDeposit($depositIndex)->setPaymentType(substr($lineData, 77, 1));
+		echo "<pre>";
+			var_dump($lineData);
+		echo "</pre>";
 		return $bgp;
 	}
 
