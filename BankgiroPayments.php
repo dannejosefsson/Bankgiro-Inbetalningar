@@ -9,7 +9,7 @@ require_once './BankgiroPaymentsDeposit.php';
 * @author		Daniel Josefsson <dannejosefsson@gmail.com>
 * @copyright	Copyright © 2012 Daniel Josefsson. All rights reserved.
 * @license		GPL v3
-* @version		v0.2
+* @version		v0.3
 * @uses			BankgiroPaymentDeposit
 */
 class BankgiroPayments
@@ -57,6 +57,25 @@ class BankgiroPayments
 	*/
 	protected	$_errors;
 
+	// File info
+	protected $_filename;
+	protected $_fileData;
+
+
+	// State machine
+	protected $_state;
+	protected $_error;
+	const STATE_IDLE					= 'Idle';
+	const STATE_ERROR					= 'Error occured';
+	const STATE_PARSING					= 'Parsing file';
+	const STATE_START_POST_PARSED		= 'Start post parsed';
+	const STATE_END_POST_PARSED			= 'End post parsed';
+	const STATE_OPENING_POST_PARSED		= 'Opening post parsed';
+	const STATE_SUMMATION_POST_PARSED	= 'Summation post parsed';
+	const STATE_PAYMENT_POST_PARSED		= 'Payment post parsed';
+	const STATE_DEDUCTION_POST_PARSED	= 'Deduction post parsed';
+	const STATE_FILE_COMPLETLY_PARSED	= 'File completly parsed';
+
 	/**
 	*
 	*
@@ -65,16 +84,20 @@ class BankgiroPayments
 	*/
 	public function __construct( $options = null )
 	{
+		$this->_state = self::STATE_IDLE;
 		if ( is_array($options) )
 		{
-
+			$i = 0;
+			$this->setFilename($options[$i++]);
 		}
 		elseif ( is_string( $options ) )
 		{
-
+			$this->setFilename($options);
 		}
 		$this->clearDeposits();
 		$this->_errors = array();
+		$this->_fileData	= array();
+		$this->_error		= array();
 	}
 
 	/**
@@ -192,6 +215,41 @@ class BankgiroPayments
 	public function setTestMarker( $testMarker )
 	{
 		$this->_testMarker = $testMarker;
+		return $this;
+	}
+
+	/**
+	* Get filename
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.3
+	*/
+	public function getFilename()
+	{
+		return $this->_filename;
+	}
+
+	/**
+	 * Sets a new filename. Returns STATE_ERROR on failure.
+	 * @since	v0.3
+	 *
+	 * @param 	$newFilename	- path and filename.
+	 * @param	$error			- returns error if $newFilename is not found.
+	 * @return	BankgiroPayments
+	 */
+	public function setFilename( $newFilename )
+	{
+		if ( isset($newFilename) && "" != $newFilename )
+		{
+			if ( file_exists($newFilename) )
+			{
+				$this->_filename = $newFilename;
+			}
+			else
+			{
+				$this->_state = self::STATE_ERROR;
+				$error[] = "$newFilename is not a file.";
+			}
+		}
 		return $this;
 	}
 
@@ -401,6 +459,141 @@ class BankgiroPayments
 		// Reserved placeholders (lineData[32-77]) are not used.
 		return $return;
 	}
+
+	/**
+	* Reads and stores earlier given file. Sets state to error on failure.
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.3
+	* @return 	BankgiroPayments
+	*/
+	public function readFile()
+	{
+		// Clear array to make sure that not old data is parsed again.
+		$this->_fileData=array();
+		if ($openFile = file($this->getFilename()))
+		{
+			foreach ($openFile as $lineNum => $line)
+			{
+				$this->_fileData[$lineNum] = $line;
+			}
+		}
+		else
+		{
+			$this->setError("Failed to read $this->getFilename()");
+		}
+		return $this;
+	}
+
+	/**
+	 * Parses given file.
+	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	 * @since	v0.2
+	 * @param 	string $filename
+	 * @return	BankgiroPayments
+	 */
+	public function parseFile( $filename = null )
+	{
+		$this->setFilename($filename);
+		$return = false;
+
+		// Read file if setFilename succeded.
+		if ( strcmp($this->_state, self::STATE_ERROR) )
+		{
+			$this->_state = self::STATE_PARSING;
+			$this->readFile();
+		}
+
+		// Parse if readFile succeded.
+		if ( strcmp($this->_state, self::STATE_ERROR) )
+		{
+			foreach ($this->_fileData as $line)
+			{
+				$postType = substr($line, 0, 2);
+				$postData = substr($line, 2, 78);
+				switch ($postType)
+				{
+					// Start post
+					case '01':
+						$this->_state = self::STATE_START_POST_PARSED;
+						$return = $this->parseStartPost($postData);
+						break;
+
+						// Opening post
+					case '05':
+						if ( 	strcmp($this->_state, self::STATE_START_POST_PARSED) ||
+								strcmp($this->_state, self::STATE_SUMMATION_POST_PARSED) )
+						{
+							$this->_state = self::STATE_OPENING_POST_PARSED;
+							$depositIndex = $this->addDeposit()->lastDepositIndex();
+							$return = $this->getDeposit($depositIndex)->parsePost($line);
+						}
+						else
+						{
+							$this->setError('Start post or summation post was not parsed before next opening post.');
+						}
+						break;
+
+						// Payment post
+					case '20':
+					case '21':
+					case '22':
+					case '23':
+					case '25':
+					case '26':
+					case '27':
+					case '28':
+					case '29':
+						if ( 	strcmp($this->_state, self::STATE_START_POST_PARSED) ||
+								strcmp($this->_state, self::STATE_PAYMENT_POST_PARSED) )
+						{
+							$this->_state = self::STATE_PAYMENT_POST_PARSED;
+							$depositIndex = $this->lastDepositIndex();
+							$return = $this->getDeposit($depositIndex)->parsePost($line);
+						}
+						else
+						{
+							$this->setError('Start post or payment post was not parsed before payment post.');
+						}
+						break;
+
+					case '15':
+						if ( 	strcmp($this->_state, self::STATE_OPENING_POST_PARSED) ||
+						strcmp($this->_state, self::STATE_PAYMENT_POST_PARSED) ||
+						strcmp($this->_state, self::STATE_DEDUCTION_POST_PARSED)	)
+						{
+							$this->_state = self::STATE_SUMMATION_POST_PARSED;
+							$depositIndex = $this->lastDepositIndex();
+							$return = $this->getDeposit($depositIndex)->parsePost($line);
+						}
+						else
+						{
+							$this->setError('Opening post or payment summation post was not parsed before next opening post.');
+						}
+						break;
+
+						// End post
+					case '70':
+						if ( 	strcmp($this->_state, self::STATE_START_POST_PARSED) ||
+								strcmp($this->_state, self::STATE_SUMMATION_POST_PARSED) )
+						{
+							$this->_state = self::STATE_END_POST_PARSED;
+							$return = $this->parseEndPost($postData);
+						}
+						else
+						{
+							$this->setError('Start post or summation post was not parsed before end post.');
+						}
+						break;
+
+					default:
+						$this->setError("Line error: $line");
+						break;
+				}
+			}
+		}
+		return $this;
+	}
+
 
 	/**
 	* Check if the value of left and right are the same.
