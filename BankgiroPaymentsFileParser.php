@@ -234,7 +234,7 @@ class BankgiroPaymentsFileParser
 					case '01':
 						$this->_state = self::STATE_START_POST_PARSED;
 						$this->_bgp = new BankgiroPayments();
-						$this->_bgp = $this->parseStartPost( $this->_bgp, $lineData );
+						$this->_bgp->parsePost( $line );
 					break;
 
 					// Opening post
@@ -243,7 +243,8 @@ class BankgiroPaymentsFileParser
 								strcmp($this->_state, self::STATE_SUMMATION_POST_PARSED) )
 						{
 							$this->_state = self::STATE_OPENING_POST_PARSED;
-							$this->parseOpeningPost($this->_bgp, $lineData);
+							$this->_bgp->parsePost($line);
+							//$this->parseOpeningPost($this->_bgp, $lineData);
 						}
 						else
 						{
@@ -251,13 +252,35 @@ class BankgiroPaymentsFileParser
 						}
 					break;
 
+					// Payment post
+					case '20':
+					case '21':
+					case '22':
+					case '23':
+					case '25':
+					case '26':
+					case '27':
+					case '28':
+					case '29':
+						if ( 	strcmp($this->_state, self::STATE_START_POST_PARSED) ||
+						strcmp($this->_state, self::STATE_PAYMENT_POST_PARSED) )
+						{
+							$this->_state = self::STATE_PAYMENT_POST_PARSED;
+							$this->_bgp->parsePost($line);
+						}
+						else
+						{
+							$this->setError('Start post or payment post was not parsed before payment post.');
+						}
+						break;
+
 					case '15':
 						if ( 	strcmp($this->_state, self::STATE_OPENING_POST_PARSED) ||
 								strcmp($this->_state, self::STATE_PAYMENT_POST_PARSED) ||
 								strcmp($this->_state, self::STATE_DEDUCTION_POST_PARSED)	)
 						{
 							$this->_state = self::STATE_SUMMATION_POST_PARSED;
-							$this->parseSummationPost($this->_bgp, $lineData);
+							$this->_bgp->parsePost($line);
 						}
 						else
 						{
@@ -271,7 +294,7 @@ class BankgiroPaymentsFileParser
 								strcmp($this->_state, self::STATE_SUMMATION_POST_PARSED) )
 						{
 							$this->_state = self::STATE_END_POST_PARSED;
-							$this->parseEndPost($this->_bgp, $lineData);
+							$this->_bgp->parsePost($line);
 						}
 						else
 						{
@@ -288,153 +311,4 @@ class BankgiroPaymentsFileParser
 		return $this;
 	}
 
-	/**
-	* Parses start post (01).
-	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
-	* @since	v0.2
-	* @param	BankgiroPayments	$bgp
-	* @param 	string				$lineData
-	* @return	BankgiroPayments
-	*/
-	private function parseStartPost( BankgiroPayments $bgp, $lineData )
-	{
-		$bgp->setLayout(trim(substr($lineData, 0, 20)));
-		$bgp->setVersion((int) substr($lineData, 20, 2));
-		$bgp->setTimestamp(date(	'Y-m-d H:i:s',
-				strtotime(substr($lineData, 22, 8).'T'. substr($lineData, 30, 6))));
-		$bgp->setMicroSeconds(substr($lineData, 36, 6));
-		$bgp->setTestMarker(substr($lineData, 42, 1));
-		// Reserved placeholders (lineData[43-77]) are not used.
-		return $bgp;
-	}
-
-	/**
-	* Parses end post (70).
-	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
-	* @since	v0.2
-	* @param	BankgiroPayments 	$bgp
-	* @param 	string 				$lineData
-	* @return	BankgiroPayments
-	*/
-	private function parseEndPost( BankgiroPayments $bgp, $lineData )
-	{
-		// Check so that the count of payment posts is consistent.
-		$postsCounts = array(	// Payment posts count.
-								(int) substr($lineData, 0, 8),
-								// Deduction posts count.
-								(int) substr($lineData, 8, 8),
-								// External references posts count.
-								(int) substr($lineData, 16, 8),
-								// Deposit posts count.
-								(int) substr($lineData, 24, 8),
-							);
-		$errorMessages = array(
-								"payment posts count",
-								"deduction posts count",
-								"external references posts count",
-								"deposit posts count",
-							);
-		$parsedCounts = $bgp->getPostsCounts();
-
-		for ($i = 0; $i < sizeof($parsedCounts); $i++)
-		{
-			$this->checkConsistancy($parsedCounts[$i], $postsCounts[$i], $errorMessages[$i] );
-		}
-		// Reserved placeholders (lineData[32-77]) are not used.
-		return $bgp;
-	}
-
-	/**
-	* Parses opening post (05).
-	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
-	* @since	v0.2
-	* @param	BankgiroPayments 	$bgp
-	* @param 	string				$lineData
-	* @return	BankgiroPayments
-	*/
-	private function parseOpeningPost( BankgiroPayments $bgp, $lineData )
-	{
-		$depositIndex = $this->_bgp->addDeposit()->lastDepositIndex();
-
-		$bgp->getDeposit($depositIndex)->setBankgiroAccountNumber(
-													(int) substr($lineData, 0, 10));
-		if ( $this->_stripLeadingZeros )
-		{
-			$bgp->getDeposit($depositIndex)->setPlusgiroAccountNumber(
-											ltrim(substr($lineData, 10, 10), "0 "));
-		}
-		else
-		{
-			$bgp->getDeposit($depositIndex)->setPlusgiroAccountNumber(
-											substr($lineData, 10, 10));
-		}
-		$bgp->getDeposit($depositIndex)->setCurrency(substr($lineData, 20, 3));
-		// Reserved placeholders (lineData[23-77]) are not used.
-		return $bgp;
-	}
-
-	/**
-	* Parses summation post (15).
-	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
-	* @since	v0.2
-	* @param 	BankgiroPayments	$bgp
-	* @param 	string				$lineData
-	* @return	BankgiroPayments
-	 */
-	private function parseSummationPost( BankgiroPayments $bgp, $lineData )
-	{
-		$depositIndex = $this->_bgp->lastDepositIndex();
-
-		$bgp->getDeposit($depositIndex)->setBankAccountNumber(
-											(int) substr($lineData, 0, 35));
-		$bgp->getDeposit($depositIndex)->setPaymentDate(substr($lineData, 35, 8));
-		$bgp->getDeposit($depositIndex)->setDepositNumber(
-											(int) substr($lineData, 43, 5));
-
-		$this->checkConsistancy($bgp->getDeposit($depositIndex)->getPaymentValue(),
-								(int) substr($lineData, 48, 18),
-								"payment value");
-
-		$this->checkConsistancy($bgp->getDeposit($depositIndex)->getCurrency(),
-								substr($lineData, 66, 3),
-								"currency");
-
-		$this->checkConsistancy($bgp->getDeposit($depositIndex)->getPaymentCount(),
-								(int) substr($lineData, 69, 8),
-								"payment count");
-		$bgp->getDeposit($depositIndex)->setPaymentType(substr($lineData, 77, 1));
-		echo "<pre>";
-			var_dump($lineData);
-		echo "</pre>";
-		return $bgp;
-	}
-
-	/**
-	* Check if the value of left and right are the same.
-	* If not; trow an error with the dynamic variableName.
-	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
-	* @since	v0.4
-	* @param 	mixed	$left
-	* @param 	mixed	$right
-	* @param 	string	$variableName
-	* @return 	boolean
-	 */
-	private function checkConsistancy( $left, $right, $variableName )
-	{
-		if (is_int($left) && is_int($right) && !((int) $left - (int) $right))
-		{
-			return true;
-		}
-		elseif ( is_string($left) && is_string($right) && !strcmp($left, $right) )
-		{
-			return true;
-		}
-		else
-		{
-			$error = "Parsed and given $variableName are not consistent. ";
-			$error .= "Parsed: ".$left." Given: ".$right;
-			$this->setError($error);
-			return false;
-		}
-	}
 }
