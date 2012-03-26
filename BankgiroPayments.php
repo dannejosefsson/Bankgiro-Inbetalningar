@@ -365,43 +365,6 @@ class BankgiroPayments
 	}
 
 	/**
-	* Parses line,given with the syntax of posts 1 and 70 in Bankgiro Inbetalningar.
-	* Transfers lines with post type 5, 15, 20-29 to BankgiroPaymentsDeposit objects for
-	* parsing.
-	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
-	* @since	v0.2
-	* @param	string $line
-	* @return	boolean
-	*/
-	public function parsePost( $line )
-	{
-		$return = false;
-		$postType = substr($line, 0, 2);
-		$postData = substr($line, 2, 78);
-		switch ($postType)
-		{
-			case '01':
-				$return = $this->parseStartPost($postData);
-				break;
-			case '05':
-				$depositIndex = $this->addDeposit()->lastDepositIndex();
-				$return = $this->getDeposit($depositIndex)->parsePost($line);
-				break;
-			case '15':
-				$depositIndex = $this->lastDepositIndex();
-				$return = $this->getDeposit($depositIndex)->parsePost($line);
-				break;
-			case '70':
-				$return = $this->parseEndPost($postData);
-			default:
-				$depositIndex = $this->lastDepositIndex();
-				$return = $this->getDeposit($depositIndex)->parsePost($line);
-				break;
-		}
-		return $return;
-	}
-
-	/**
 	* Parses start post (01).
 	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	* @since	v0.2
@@ -599,7 +562,7 @@ class BankgiroPayments
 	* Check if the value of left and right are the same.
 	* If not; trow an error with the dynamic variableName.
 	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
-	* @since	v0.4
+	* @since	v0.2
 	* @param 	mixed	$left
 	* @param 	mixed	$right
 	* @param 	string	$variableName
