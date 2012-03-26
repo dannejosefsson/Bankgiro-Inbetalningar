@@ -52,6 +52,12 @@ class BankgiroPayments
 	protected $_deposits;
 
 	/**
+	* Array storing errors
+	* @var array of strings
+	*/
+	protected	$_errors;
+
+	/**
 	*
 	*
 	* @since	v0.1
@@ -68,6 +74,7 @@ class BankgiroPayments
 
 		}
 		$this->clearDeposits();
+		$this->_errors = array();
 	}
 
 	/**
@@ -189,6 +196,30 @@ class BankgiroPayments
 	}
 
 	/**
+	* Returns errors.
+	* @author	Daniel Josefsson
+	* @since	v0.2
+	* @return	array of strings
+	*/
+	public function getErrors()
+	{
+		return $this->_errors;
+	}
+
+	/**
+	 * Sets new error.
+	 * @author	Daniel Josefsson
+	 * @since	v0.2
+	 * @param	string $errors
+	 * @return	BankgiroPaymentsDeposit
+	 */
+	public function setError( $error )
+	{
+		$this->_errors[] = $error;
+		return $this;
+	}
+
+	/**
 	* Returns deposit objects count.
 	*
 	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
@@ -205,14 +236,23 @@ class BankgiroPayments
 	* @todo		make body
 	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	* @since	v0.1
-	* @todo		build functions for payments, deductions and external references.
+	* @todo		build functions for external references.
 	 */
 	public function getPostsCounts()
 	{
-		$postsCounts = array(	0,
-								0,
-								0,
-								$this->getDepositsCount(),
+		$paymentPosts = 0;
+		$deductionPosts = 0;
+		$extraReferences = 0;
+		foreach ($this->_deposits as $deposit)
+		{
+			$paymentPosts += $deposit->getPaymentCount();
+			$deductionPosts += $deposit->getDeductionCount();
+			$extraReferences+= $deposit->getExtraReferencesCount();
+		}
+		$postsCounts = array(	$paymentPosts,
+								$deductionPosts,
+								$extraReferences,
+								$this->getDepositsCount(), //Deposit counts
 								);
 		return $postsCounts;
 	}
@@ -264,5 +304,130 @@ class BankgiroPayments
 	public function getDeposit( $index )
 	{
 		return $this->_deposits[$index];
+	}
+
+	/**
+	* Parses line,given with the syntax of posts 1 and 70 in Bankgiro Inbetalningar.
+	* Transfers lines with post type 5, 15, 20-29 to BankgiroPaymentsDeposit objects for
+	* parsing.
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.2
+	* @param	string $line
+	* @return	boolean
+	*/
+	public function parsePost( $line )
+	{
+		$return = false;
+		$postType = substr($line, 0, 2);
+		$postData = substr($line, 2, 78);
+		switch ($postType)
+		{
+			case '01':
+				$return = $this->parseStartPost($postData);
+				break;
+			case '05':
+				$depositIndex = $this->addDeposit()->lastDepositIndex();
+				$return = $this->getDeposit($depositIndex)->parsePost($line);
+				break;
+			case '15':
+				$depositIndex = $this->lastDepositIndex();
+				$return = $this->getDeposit($depositIndex)->parsePost($line);
+				break;
+			case '70':
+				$return = $this->parseEndPost($postData);
+			default:
+				$depositIndex = $this->lastDepositIndex();
+				$return = $this->getDeposit($depositIndex)->parsePost($line);
+				break;
+		}
+		return $return;
+	}
+
+	/**
+	* Parses start post (01).
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.2
+	* @param 	string				$lineData
+	* @return	bool
+	*/
+	private function parseStartPost( $lineData )
+	{
+		$this->setLayout(trim(substr($lineData, 0, 20)));
+		$this->setVersion((int) substr($lineData, 20, 2));
+		$this->setTimestamp(date(	'Y-m-d H:i:s',
+									strtotime(substr($lineData, 22, 8).'T'. substr($lineData, 30, 6))));
+		$this->setMicroSeconds(substr($lineData, 36, 6));
+		$this->setTestMarker(substr($lineData, 42, 1));
+		// Reserved placeholders (lineData[43-77]) are not used.
+		return $this;
+	}
+
+	/**
+	* Parses end post (70).
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.2
+	* @param 	string 				$lineData
+	* @return	bool
+	*/
+	private function parseEndPost( $lineData )
+	{
+		// Check so that the count of payment posts is consistent.
+		$postsCounts = array(	// Payment posts count.
+								(int) substr($lineData, 0, 8),
+		// Deduction posts count.
+								(int) substr($lineData, 8, 8),
+		// External references posts count.
+								(int) substr($lineData, 16, 8),
+		// Deposit posts count.
+								(int) substr($lineData, 24, 8),
+		);
+		$errorMessages = array(
+									"payment posts count",
+									"deduction posts count",
+									"external references posts count",
+									"deposit posts count",
+								);
+		$parsedCounts = $this->getPostsCounts();
+		$return = true;
+		for ($i = 0; $i < sizeof($parsedCounts); $i++)
+		{
+			if ( !$this->checkConsistancy(	$parsedCounts[$i],
+											$postsCounts[$i],
+											$errorMessages[$i] ) )
+			{
+				$return = false;
+			}
+		}
+		// Reserved placeholders (lineData[32-77]) are not used.
+		return $return;
+	}
+
+	/**
+	* Check if the value of left and right are the same.
+	* If not; trow an error with the dynamic variableName.
+	* @author	Daniel Josefsson <dannejosefsson@gmail.com>
+	* @since	v0.4
+	* @param 	mixed	$left
+	* @param 	mixed	$right
+	* @param 	string	$variableName
+	* @return 	boolean
+	*/
+	private function checkConsistancy( $left, $right, $variableName )
+	{
+		if (is_int($left) && is_int($right) && !((int) $left - (int) $right))
+		{
+			return true;
+		}
+		elseif ( is_string($left) && is_string($right) && !strcmp($left, $right) )
+		{
+			return true;
+		}
+		else
+		{
+			$error = "Parsed and given $variableName are not consistent. ";
+			$error .= "Parsed: ".$left." Given: ".$right;
+			$this->setError($error);
+			return false;
+		}
 	}
 }
