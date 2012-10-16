@@ -28,9 +28,9 @@ class Transaction extends AbstractParser
 	 */
 	public function checkSyntax($rowData)
 	{
-		//TODO: Coma given in second part is not given in the technical manual, but given in test files. Check with BGC
-		$regex = "/^[0-9]{10}[\p{L}\s,0-9]{25}[0-9]{18}[0-9]{1}[0-9]{1};
-		$regex .= [0-9\p{L}]{12}[0-9\s]{1}[0-9\s]{1}[\s]{9}/u";
+		//TODO: Comma given in second part is not given in the technical manual, but given in test files. Check with BGC
+		$regex = "/^[0-9]{10}[\p{L}\s,0-9]{25}[0-9]{18}[0-9]{1}[0-9]{1}";
+		$regex .= "[0-9\p{L}]{12}[0-9\s]{1}[0-9\s]{1}[\s]{9}/u";
 		return (preg_match($regex, $rowData))? true: false;
 	}
 
