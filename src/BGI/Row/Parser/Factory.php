@@ -1,4 +1,9 @@
 <?php
+/**
+ * Parser factory.
+ * @license	http://www.gnu.org/licenses/gpl.html
+ * @author		Daniel Josefsson <dannejosefsson@gmail.com>
+ */
 namespace BGI\Row\Parser;
 
 /**
@@ -9,7 +14,9 @@ namespace BGI\Row\Parser;
 class Factory
 {
 	/**
-	 *
+	 * Returns parser depending on input. Give a type given in Uses as camel
+	 * case.
+	 * <code><?php>$this->getParser('organisationNumber');<?></code>
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @param	string $parserType
 	 * @uses	Start
