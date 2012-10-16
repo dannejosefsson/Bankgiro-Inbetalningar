@@ -10,3 +10,7 @@
 #Test files
 test.php
 Example Files/*
+
+#Documentation
+docs/*
+uml/*
