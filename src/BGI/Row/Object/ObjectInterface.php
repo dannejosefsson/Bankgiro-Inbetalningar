@@ -1,4 +1,9 @@
 <?php
+/**
+ * Object interface.
+ * @license	http://www.gnu.org/licenses/gpl.html
+ * @author		Daniel Josefsson <dannejosefsson@gmail.com>
+ */
 namespace BGI\Row\Object;
 
 /**
@@ -22,6 +27,7 @@ interface ObjectInterface
 
 	/**
 	 * Return the transaction code.
+	 * @return	int|string
 	 */
 	public function getTransactionCode();
 
