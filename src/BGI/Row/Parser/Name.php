@@ -68,7 +68,7 @@ class Name extends AbstractParser
 	/**
 	 * {@inheritdoc}
 	 */
-	protected function getObject(array $data)
+	protected function getObject(array $data = array())
 	{
 		if (!$this->_objectType instanceof Object\ObjectInterface)
 		{
