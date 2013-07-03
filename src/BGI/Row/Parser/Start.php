@@ -28,7 +28,7 @@ class Start extends AbstractParser
 	 */
 	public function checkSyntax($rowData)
 	{
-		$regex = "/^[\s\w]{20}[0-9]{2}[0-9]{20}[PT]{1}[\s]{35}$/";
+		$regex = "/^[\s\w]{20}[0-9]{2}[0-9]{20}[PT]{1}[\s]{35}[\r]{0,1}[\n]{1}$/";
 		return (preg_match($regex, $rowData))? true: false;
 	}
 

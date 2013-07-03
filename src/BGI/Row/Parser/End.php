@@ -28,8 +28,7 @@ class End extends AbstractParser
 	 */
 	public function checkSyntax($rowData)
 	{
-		//TODO: It seems that one can not be sure that the end row always contains the blank characters. As result, this regex will not check them.
-		$regex = "/^[0-9]{8}[0-9]{8}[0-9]{8}[0-9]{8}/";
+		$regex = "/^[0-9]{8}[0-9]{8}[0-9]{8}[0-9]{8}[\s]{0,46}[\r]{0,1}[\n]{1}$/";
 		return (preg_match($regex, $rowData))? true: false;
 	}
 

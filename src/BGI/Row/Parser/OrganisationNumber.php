@@ -29,7 +29,7 @@ class OrganisationNumber extends AbstractParser
 	 */
 	public function checkSyntax($rowData)
 	{
-		$regex = "/^[0-9]{12}[\s]{66}$/";
+		$regex = "/^[0-9]{12}[\s]{66}[\r]{0,1}[\n]{1}$/";
 		return (preg_match($regex, $rowData))? true: false;
 	}
 

@@ -29,7 +29,7 @@ class AddressOne extends AbstractParser
 	 */
 	public function checkSyntax($rowData)
 	{
-		$regex = "/^[\s\p{L}0-9.]{35}[\s\p{L}0-9.]{9}[\s]{34}$/";
+		$regex = "/^[\s\p{L}0-9.]{35}[\s\p{L}0-9.]{9}[\s]{34}[\r]{0,1}[\n]{1}$/";
 		return (preg_match($regex, $rowData))? true: false;
 	}
 

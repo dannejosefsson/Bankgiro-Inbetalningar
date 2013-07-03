@@ -28,9 +28,9 @@ class Transaction extends AbstractParser
 	 */
 	public function checkSyntax($rowData)
 	{
-		//TODO: Comma given in second part is not given in the technical manual, but given in test files. Check with BGC
+		//TODO: Comma given in reference number is not given as a explicit given as a delimiter in the technical manual, but given in test files. Check with BGC
 		$regex = "/^[0-9]{10}[\p{L}\s,0-9]{25}[0-9]{18}[0-9]{1}[0-9]{1}";
-		$regex .= "[0-9\p{L}]{12}[0-9\s]{1}[0-9\s]{1}[\s]{9}/u";
+		$regex .= "[0-9\p{L}]{12}[0-9\s]{1}[0-9\s]{1}[\s]{9}[\r]{0,1}[\n]{1}$/u";
 		return (preg_match($regex, $rowData))? true: false;
 	}
 
@@ -54,7 +54,7 @@ class Transaction extends AbstractParser
 			$start = $start + $length;
 			$length = 25;
 			$returnObject->setReferences(
-				//TODO: Comma given is not given in the technical manual, but given in test files. Check with BGC
+				//TODO: Comma given in reference number is not given as a explicit given as a delimiter in the technical manual, but given in test files. Check with BGC
 				preg_split(	"@[ ,]@", substr($rowData, $start, $length),
 							NULL, PREG_SPLIT_NO_EMPTY));
 			// Get payment value

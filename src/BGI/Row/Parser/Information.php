@@ -31,7 +31,7 @@ class Information extends AbstractParser
 	 */
 	public function checkSyntax($rowData)
 	{
-		$regex = "/^[0-9\s\p{L}]{50}[\s]{28}$/";
+		$regex = "/^[0-9\s\p{Xan}]{50}[\s]{28}[\r]{0,1}[\n]{1}$/";
 		return (preg_match($regex, $rowData))? true: false;
 	}
 

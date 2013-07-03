@@ -162,12 +162,11 @@ class BgiFileParser
 		// Parse if readFile succeded.
 		if ( strcmp($this->getState(), self::STATE_ERROR) )
 		{
-			setlocale(LC_CTYPE, 'sv_SE.UTF8');
 			$lineNr = 1;
 			foreach ($this->_fileData as $line)
 			{
 				$transactionCode = substr($line, 0, 2);
-				$rowData = substr($line, 2, 78);
+				$rowData = substr($line, 2);
 				if (is_numeric($transactionCode))
 				{
 					$state = $this->getFileInfoContainer()->
@@ -177,7 +176,7 @@ class BgiFileParser
 							$state))
 				{
 					$this->setError('Error at line '. $lineNr .
-									' in ' . $this->getFilename());
+									' in ' . $this->getFilename(). ' '. $transactionCode. '-'. $rowData);
 					return $this;
 				}
 				$lineNr++;

@@ -28,7 +28,7 @@ class Summation extends AbstractParser
 	 */
 	public function checkSyntax($rowData)
 	{
-		$regex = "/^[0-9]{35}[0-9]{8}[0-9]{5}[0-9]{18}[A-Z]{3}[0-9]{8}[DKS\s]{1}$/";
+		$regex = "/^[0-9]{35}[0-9]{8}[0-9]{5}[0-9]{18}[A-Z]{3}[0-9]{8}[DKS\s]{1}[\r]{0,1}[\n]{1}$/";
 		return (preg_match($regex, $rowData))? true: false;
 	}
 

@@ -28,7 +28,7 @@ class Opening extends AbstractParser
 	 */
 	public function checkSyntax($rowData)
 	{
-		$regex = "/^[0-9]{10}[\s0-9]{10}[A-Z]{3}[\s]{55}$/";
+		$regex = "/^[0-9]{10}[\s0-9]{10}[A-Z]{3}[\s]{55}[\r]{0,1}[\n]{1}$/";
 		return (preg_match($regex, $rowData))? true: false;
 	}
 
