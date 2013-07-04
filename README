@@ -1,12 +1,20 @@
-Bankgiro-Inbetalningar
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>Bankgiro-Inbetalningar</title>
+</head>
+<body>
+<pre>Bankgiro-Inbetalningar
 ==============================================
 This module is a Bankgiro Inbetalningar parser where [BG6040] [1] is the specification behind the code. PHP 5.3.10 was used.
 
 Usage
 -----
-    $parser = new \BGI\BgiFileParser();
-    $parser->parseFile($file);
-
+```php
+$parser = new \BGI\BgiFileParser();
+$parser->parseFile($file);
+```
 Testing
 -------
 Tests were conducted with PHPUnit 3.7.21.
@@ -29,8 +37,8 @@ Some of the test files are not complying to the given standard and this has been
 
 TODO
 ----
-Avibildmarkering and parsing of such pictures is not started.
-    $parser->getData;
+- [ ] Avibildmarkering and parsing of such pictures is not started.
+- [ ] Data fetching $parser->getData;
 
   [1]: http://www.bgc.se/templates/Trycksaksearch____3199.aspx#        "BG6040"
   [2]: http://www.bgc.se/upload/Gemensamt/Exempelfiler/BgMaxfil1.txt        "BgMaxfil1"
@@ -38,4 +46,6 @@ Avibildmarkering and parsing of such pictures is not started.
   [4]: http://www.bgc.se/upload/Gemensamt/Exempelfiler/BgMaxfil3.txt        "BgMaxfil3"
   [5]: http://www.bgc.se/upload/Gemensamt/Exempelfiler/BgMaxfil4.txt        "BgMaxfil4"
   [6]: http://www.bgc.se/upload/Gemensamt/Exempelfiler/BgMaxfil5.txt        "BgMaxfil5"
-  [7]: http://www.bgc.se/upload/Gemensamt/Exempelfiler/Bildfil%20991-2346.tif        "Picture file"
+  [7]: http://www.bgc.se/upload/Gemensamt/Exempelfiler/Bildfil%20991-2346.tif        "Picture file"</pre>
+</body>
+</html>
