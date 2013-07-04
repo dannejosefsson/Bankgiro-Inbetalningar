@@ -34,7 +34,7 @@ spl_autoload_register(function ($class) {
 						}
 					}
 				}
-				throw new \Exception( _( 'class ' . $class . ' could not be found.' ) );
+				throw new \Exception( _( 'class ' . $class . ' could not be found. Include path: '. get_include_path()) );
 			}
 		});
 /* use if you need to lowercase first char *

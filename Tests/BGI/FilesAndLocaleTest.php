@@ -5,7 +5,7 @@
  * @author		Daniel Josefsson <dannejosefsson@gmail.com>
  */
 namespace Tests\BGI;
-
+require_once('bootstrap.php');
 class TestFilesTest extends AbstractFiles
 {
 	/**

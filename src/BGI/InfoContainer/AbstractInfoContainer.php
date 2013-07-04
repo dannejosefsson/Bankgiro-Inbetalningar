@@ -7,6 +7,12 @@
  */
 namespace BGI\InfoContainer;
 
+use BGI\Visitor\VisitorInterface;
+
+use BGI\Visitor\VisitInfoContainerInterface;
+
+use BGI\Visitor\NodeInterface;
+
 use BGI\Row\Parser\ParserInterface;
 use BGI\Row\Object\ObjectInterface;
 /**
@@ -17,7 +23,7 @@ use BGI\Row\Object\ObjectInterface;
  * @uses		BGI\InfoContainer.InfoContainerInterface
  * @abstract
  */
-abstract class AbstractInfoContainer implements InfoContainerInterface
+abstract class AbstractInfoContainer implements InfoContainerInterface, NodeInterface
 {
 	/**#@+ @access protected */
 	/**
@@ -286,4 +292,10 @@ abstract class AbstractInfoContainer implements InfoContainerInterface
 		}
 		return $errors;
 	}
+
+	/**
+	 * {@inheritdoc}
+	 * @abstract
+	 */
+	abstract public function accept(VisitorInterface $visitor);
 }

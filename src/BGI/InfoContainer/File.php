@@ -6,6 +6,10 @@
  */
 namespace BGI\InfoContainer;
 
+use BGI\Visitor\VisitorInterface;
+
+use BGI\Visitor\VisitInfoContainerInterface;
+
 use BGI\Row\Object as Object;
 use BGI\Row\Parser as Parser;
 
@@ -134,5 +138,12 @@ class File extends AbstractInfoContainer
 		{
 			return false;
 		}
+	}
+
+	/**
+	 * {@inheritdoc}
+	 */
+	public function accept(VisitorInterface $visitor) {
+		$visitor->visitInfoContainer($this);
 	}
 }

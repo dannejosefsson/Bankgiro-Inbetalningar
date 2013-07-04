@@ -6,6 +6,8 @@
  */
 namespace BGI\InfoContainer;
 
+use BGI\Visitor\VisitorInterface;
+
 use BGI\Row\Object as Object;
 use BGI\Row\Parser as Parser;
 
@@ -226,4 +228,10 @@ class Deposit extends AbstractInfoContainer
 		return $paymentValue;
 	}
 
+	/**
+	 * {@inheritdoc}
+	 */
+	public function accept(VisitorInterface $visitor) {
+		$visitor->visitInfoContainer($this);
+	}
 }

@@ -6,6 +6,8 @@
  */
 namespace BGI;
 
+use BGI\Visitor as Visitor;
+
 use BGI\InfoContainer as InfoContainer;
 
 /**
@@ -281,5 +283,17 @@ class BgiFileParser
 	protected function setState($state)
 	{
 		$this->_state = $state;
+	}
+
+	/**
+	 * Get parsed data.
+	 * @author Daniel Josefsson <dannejosefsson@gmail.com>
+	 */
+	public function getData() {
+		$visitor = new Visitor\GetData();
+		foreach ($this->_fileInfoContainer as $fileInfoContainer) {
+			$fileInfoContainer->accept($visitor);
+		}
+		return array('01');//$visitor->getResult();
 	}
 }
