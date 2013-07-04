@@ -18,6 +18,7 @@ Testfiles needed to conduct the tests are:
 *   [BgMaxfil3][]
 *   [BgMaxfil4][]
 *   [BgMaxfil5][]
+
 and they should be placed in Tests/Files folder.
 
 Some of the test files are not complying to the given standard and this has been reported to BGC several times, but nothing is corrected as 2013-07-02.
