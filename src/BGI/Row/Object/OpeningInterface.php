@@ -14,6 +14,12 @@ namespace BGI\Row\Object;
 interface OpeningInterface
 {
 	/**
+	 * Transaction code
+	 * @var string
+	 */
+	const TRANSACTION_CODE = '05';
+
+	/**
 	 * Get bankgiro.
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @return	int|string

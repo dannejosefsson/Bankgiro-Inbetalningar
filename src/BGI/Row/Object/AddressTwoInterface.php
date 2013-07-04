@@ -14,6 +14,12 @@ namespace BGI\Row\Object;
 interface AddressTwoInterface
 {
 	/**
+	 * Transaction code
+	 * @var string
+	 */
+	const TRANSACTION_CODE = '28';
+
+	/**
 	 * Get city.
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @return	string

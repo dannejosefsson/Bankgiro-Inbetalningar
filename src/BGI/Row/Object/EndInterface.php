@@ -14,6 +14,12 @@ namespace BGI\Row\Object;
 interface EndInterface
 {
 	/**
+	 * Transaction code
+	 * @var string
+	 */
+	const TRANSACTION_CODE = '70';
+
+	/**
 	 * Get payment posts count.
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @return	int

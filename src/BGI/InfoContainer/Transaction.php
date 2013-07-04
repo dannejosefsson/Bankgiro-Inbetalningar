@@ -23,7 +23,9 @@ class Transaction	extends AbstractInfoContainer
 	/**
 	 * {@inheritdoc}
 	 */
-	protected static $_startPostTransactionCode = array('20', '21');
+	protected static $_startPostTransactionCode = array(
+			Object\TransactionInterface::TRANSACTION_CODE_TR,
+			Object\TransactionInterface::TRANSACTION_CODE_DE);
 
 	/**
 	 * Stores the transaction object.
@@ -92,16 +94,24 @@ class Transaction	extends AbstractInfoContainer
 	public function __construct()
 	{
 		$parserFactory = new Parser\Factory();
-		$this->setRowParser('20', $parserFactory->getParser('transaction'));
-		$this->setRowParser('21', $parserFactory->getParser('transaction'));
-		$this->setRowParser('22', $parserFactory->getParser('transaction'));
-		$this->setRowParser('23', $parserFactory->getParser('transaction'));
-		$this->setRowParser('26', $parserFactory->getParser('name'));
-		$this->setRowParser('27', $parserFactory->getParser('addressOne'));
-		$this->setRowParser('28', $parserFactory->getParser('addressTwo'));
-		$this->setRowParser('29',
-							$parserFactory->getParser('organisationNumber'));
-		$this->setRowParser('25', $parserFactory->getParser('information'));
+		$this->setRowParser(static::$_startPostTransactionCode[0],
+				$parserFactory->getParser(Parser\TransactionInterface::_name));
+		$this->setRowParser(static::$_startPostTransactionCode[1],
+				$parserFactory->getParser(Parser\TransactionInterface::_name));
+		$this->setRowParser(Object\TransactionInterface::TRANSACTION_CODE_TR_ER,
+				$parserFactory->getParser(Parser\TransactionInterface::_name));
+		$this->setRowParser(Object\TransactionInterface::TRANSACTION_CODE_DE_ER,
+				$parserFactory->getParser(Parser\TransactionInterface::_name));
+		$this->setRowParser(Object\NameInterface::TRANSACTION_CODE,
+				$parserFactory->getParser(Parser\NameInterface::_name));
+		$this->setRowParser(Object\AddressOneInterface::TRANSACTION_CODE,
+				$parserFactory->getParser(Parser\AddressOneInterface::_name));
+		$this->setRowParser(Object\AddressTwoInterface::TRANSACTION_CODE,
+				$parserFactory->getParser(Parser\AddressTwoInterface::_name));
+		$this->setRowParser(Object\OrganisationNumberInterface::TRANSACTION_CODE,
+				$parserFactory->getParser(Parser\OrganisationNumberInterface::_name));
+		$this->setRowParser(Object\InformationInterface::TRANSACTION_CODE,
+				$parserFactory->getParser(Parser\InformationInterface::_name));
 	}
 
 	/**
@@ -114,13 +124,13 @@ class Transaction	extends AbstractInfoContainer
 			$transactionCode = $object->getTransactionCode();
 			switch ($transactionCode)
 			{
-				case '20':
-				case '21':
+				case static::$_startPostTransactionCode[0]:
+				case static::$_startPostTransactionCode[1]:
 					$this->_transaction = $object;
 					$this->addTransactionCount();
 					break;
-				case '22':
-				case '23':
+				case Object\TransactionInterface::TRANSACTION_CODE_TR_ER:
+				case Object\TransactionInterface::TRANSACTION_CODE_DE_ER:
 					$this->_extraReferences[] = $object;
 					break;
 				default:

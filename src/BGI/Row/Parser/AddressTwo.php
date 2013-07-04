@@ -19,7 +19,8 @@ class AddressTwo extends AbstractParser
 	/**
 	 * {@inheritdoc}
 	 */
-	protected $_validTransactionCodes = array('28');
+	protected $_validTransactionCodes =
+		array(Object\AddressTwoInterface::TRANSACTION_CODE);
 
 	const STATE_ADDRESS_TWO_POST_PARSED		= 'Second address post parsed';
 

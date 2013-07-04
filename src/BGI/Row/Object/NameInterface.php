@@ -14,6 +14,12 @@ namespace BGI\Row\Object;
 interface NameInterface
 {
 	/**
+	 * Transaction code
+	 * @var string
+	 */
+	const TRANSACTION_CODE = '26';
+
+	/**
 	 * Get name.
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @return	string

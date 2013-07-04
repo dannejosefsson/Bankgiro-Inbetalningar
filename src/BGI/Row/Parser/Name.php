@@ -19,7 +19,8 @@ class Name extends AbstractParser
 	/**
 	 * {@inheritdoc}
 	 */
-	protected $_validTransactionCodes = array('26');
+	protected $_validTransactionCodes =
+		array(Object\NameInterface::TRANSACTION_CODE);
 
 	const STATE_NAME_POST_PARSED		= 'Name post parsed';
 

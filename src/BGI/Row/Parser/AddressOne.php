@@ -20,7 +20,8 @@ class AddressOne extends AbstractParser
 	/**
 	 * {@inheritdoc}
 	 */
-	protected $_validTransactionCodes = array('27');
+	protected $_validTransactionCodes =
+		array(Object\AddressOneInterface::TRANSACTION_CODE);
 
 	const STATE_ADDRESS_ONE_POST_PARSED		= 'First address post parsed';
 

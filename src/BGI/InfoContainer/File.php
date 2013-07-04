@@ -21,7 +21,15 @@ class File extends AbstractInfoContainer
 	/**
 	 * {@inheritdoc}
 	 */
-	protected static $_startPostTransactionCode = '01';
+	protected static $_startPostTransactionCode =
+		Object\StartInterface::TRANSACTION_CODE;
+
+	/**
+	 * End post transaction code.
+	 * @var string
+	 */
+	protected static $_endPostTransactionCode =
+		Object\EndInterface::TRANSACTION_CODE;
 
 	/**
 	 * Start post object.
@@ -46,11 +54,11 @@ class File extends AbstractInfoContainer
 	{
 		$parserFactory = new Parser\Factory();
 		$this->setRowParser(	$this->getStartTransactionCode(),
-								$parserFactory->getParser('start'));
-		$this->setRowParser('70', $parserFactory->getParser('end'));
-		$infoContainerFactory = new InfoContainerFactory();
+			$parserFactory->getParser(Parser\StartInterface::_name));
+		$this->setRowParser(	static::$_endPostTransactionCode,
+			$parserFactory->getParser(Parser\EndInterface::_name));
 		$this->setLowerLevelInfoContainerType(
-				$infoContainerFactory->getDeposit());
+				InfoContainerFactory::getDeposit());
 	}
 
 	/**

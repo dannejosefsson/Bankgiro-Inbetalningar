@@ -14,6 +14,12 @@ namespace BGI\Row\Object;
 interface StartInterface
 {
 	/**
+	 * Transaction code
+	 * @var string
+	 */
+	const TRANSACTION_CODE = '01';
+
+	/**
 	 * Get layout.
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @return	int|string

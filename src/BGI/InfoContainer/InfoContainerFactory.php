@@ -18,7 +18,7 @@ class InfoContainerFactory
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @return	File
 	 */
-	public function getFile()
+	static public function getFile()
 	{
 		return new File();
 	}

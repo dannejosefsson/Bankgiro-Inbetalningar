@@ -15,12 +15,12 @@ use BGI\Row\Object as Object;
  * @author		Daniel Josefsson <dannejosefsson@gmail.com>
  * @uses		AbstractParser
  */
-class OrganisationNumber extends AbstractParser
+class OrganisationNumber extends AbstractParser implements OrganisationNumberInterface
 {
 	/**
 	 * {@inheritdoc}
 	 */
-	protected $_validTransactionCodes = array('29');
+	protected $_validTransactionCodes = array(Object\OrganisationNumberInterface::TRANSACTION_CODE);
 
 	const STATE_ORGANISATION_NUMBER_POST_PARSED		= 'Organisation number post parsed';
 

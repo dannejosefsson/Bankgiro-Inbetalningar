@@ -19,7 +19,11 @@ class Transaction extends AbstractParser
 	/**
 	 * {@inheritdoc}
 	 */
-	protected $_validTransactionCodes = array('20', '21', '22', '23');
+	protected $_validTransactionCodes =
+		array(	Object\TransactionInterface::TRANSACTION_CODE_TR,
+				Object\TransactionInterface::TRANSACTION_CODE_TR_ER,
+				Object\TransactionInterface::TRANSACTION_CODE_DE,
+				Object\TransactionInterface::TRANSACTION_CODE_DE_ER);
 
 	const STATE_TRANSACTION_POST_PARSED		= 'Transaction post parsed';
 

@@ -14,12 +14,13 @@ use BGI\Row\Object as Object;
  * @author		Daniel Josefsson <dannejosefsson@gmail.com>
  * @uses		AbstractParser
  */
-class Start extends AbstractParser
+class Start extends AbstractParser implements StartInterface
 {
 	/**
 	 * {@inheritdoc}
 	 */
-	protected $_validTransactionCodes = array('01');
+	protected $_validTransactionCodes =
+		array(Object\StartInterface::TRANSACTION_CODE);
 
 	const STATE_START_POST_PARSED		= 'Start post parsed';
 

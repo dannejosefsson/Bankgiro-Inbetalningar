@@ -14,6 +14,12 @@ namespace BGI\Row\Object;
 interface AddressOneInterface
 {
 	/**
+	 * Transaction code
+	 * @var string
+	 */
+	const TRANSACTION_CODE = '27';
+
+	/**
 	 * Get the address.
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @return	string

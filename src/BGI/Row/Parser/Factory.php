@@ -16,7 +16,7 @@ class Factory
 	/**
 	 * Returns parser depending on input. Give a type given in Uses as camel
 	 * case.
-	 * <code><?php>$this->getParser('organisationNumber');<?></code>
+	 * <code><?php $this->getParser('organisationNumber'); ?></code>
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @param	string $parserType
 	 * @uses	Start
@@ -34,25 +34,25 @@ class Factory
 	{
 		switch ($parserType)
 		{
-			case 'start':
+			case StartInterface::_name:
 				return new Start();
-			case 'opening':
+			case OpeningInterface::_name:
 				return new Opening();
-			case 'summation':
+			case SummationInterface::_name:
 				return new Summation();
-			case 'end':
+			case EndInterface::_name:
 				return new End();
-			case 'transaction':
+			case TransactionInterface::_name:
 				return new Transaction();
-			case 'name':
+			case NameInterface::_name:
 				return new Name();
-			case 'addressOne':
+			case AddressOneInterface::_name:
 				return new AddressOne();
-			case 'addressTwo':
+			case AddressTwoInterface::_name:
 				return new AddressTwo();
-			case 'organisationNumber':
+			case OrganisationNumberInterface::_name:
 				return new OrganisationNumber();
-			case 'information':
+			case InformationInterface::_name:
 				return new Information();
 			default:
 				$errorMsg = $parserType. ' is not a valid parser.';

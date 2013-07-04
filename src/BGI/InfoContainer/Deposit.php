@@ -22,7 +22,15 @@ class Deposit extends AbstractInfoContainer
 	 * @static
 	 * @var string
 	 */
-	protected static $_startPostTransactionCode = '05';
+	protected static $_startPostTransactionCode =
+		Object\OpeningInterface::TRANSACTION_CODE;
+
+	/**
+	 * End post transaction code.
+	 * @var string
+	 */
+	protected static $_endPostTransactionCode =
+		Object\SummationInterface::TRANSACTION_CODE;
 
 	/**
 	 * Opening post object.
@@ -54,10 +62,12 @@ class Deposit extends AbstractInfoContainer
 	public function __construct()
 	{
 		$parserFactory = new Parser\Factory();
-		$this->setRowParser($this->getStartTransactionCode(), $parserFactory->getParser('opening'));
-		$this->setRowParser('15', $parserFactory->getParser('summation'));
-		$infoContainerFactory = new InfoContainerFactory();
-		$this->setLowerLevelInfoContainerType($infoContainerFactory->getTransaction());
+		$this->setRowParser($this->getStartTransactionCode(),
+				$parserFactory->getParser(Parser\OpeningInterface::_name));
+		$this->setRowParser(static::$_endPostTransactionCode,
+				$parserFactory->getParser(Parser\SummationInterface::_name));
+		$this->setLowerLevelInfoContainerType(
+				InfoContainerFactory::getTransaction());
 	}
 
 	/**
@@ -172,12 +182,12 @@ class Deposit extends AbstractInfoContainer
 			{
 				switch ($transactionCode = $transaction->getTransactionCode())
 				{
-					case '20':
+					case Object\TransactionInterface::TRANSACTION_CODE_TR:
 						$this->addTransactionType('payment');
 						$this->addTransactionType('extraReferences',
 							$transaction->countExtraReferences());
 						break;
-					case '21':
+					case Object\TransactionInterface::TRANSACTION_CODE_DE:
 						$this->addTransactionType('deduction');
 						$this->addTransactionType('extraReferences',
 							$transaction->countExtraReferences());

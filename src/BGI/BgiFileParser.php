@@ -253,8 +253,7 @@ class BgiFileParser
 	 */
 	protected function setFileInfoContainer()
 	{
-			$infoContainerFactory = new InfoContainer\InfoContainerFactory();
-			$this->_fileInfoContainer = $infoContainerFactory->getFile();
+		$this->_fileInfoContainer = InfoContainer\InfoContainerFactory::getFile();
 		return $this;
 	}
 

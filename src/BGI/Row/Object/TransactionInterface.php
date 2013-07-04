@@ -14,6 +14,30 @@ namespace BGI\Row\Object;
 interface TransactionInterface
 {
 	/**
+	 * Transaction code for transaction.
+	 * @var string
+	 */
+	const TRANSACTION_CODE_TR = '20';
+
+	/**
+	 * Transaction code for deduction.
+	 * @var string
+	 */
+	const TRANSACTION_CODE_DE = '21';
+
+	/**
+	 * Transaction code for transaction extra reference.
+	 * @var string
+	 */
+	const TRANSACTION_CODE_TR_ER = '22';
+
+	/**
+	 * Transaction code for deduction extra reference.
+	 * @var string
+	 */
+	const TRANSACTION_CODE_DE_ER = '23';
+
+	/**
 	 * Get sender bankgiro.
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @return	int|string

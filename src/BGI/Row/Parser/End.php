@@ -19,7 +19,8 @@ class End extends AbstractParser
 	/**
 	 * {@inheritdoc}
 	 */
-	protected $_validTransactionCodes = array('70');
+	protected $_validTransactionCodes =
+		array(Object\EndInterface::TRANSACTION_CODE);
 
 	const STATE_END_POST_PARSED		= 'End post parsed';
 

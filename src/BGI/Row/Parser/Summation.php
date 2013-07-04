@@ -14,12 +14,13 @@ use BGI\Row\Object as Object;
  * @author		Daniel Josefsson <dannejosefsson@gmail.com>
  * @uses		AbstractParser
  */
-class Summation extends AbstractParser
+class Summation extends AbstractParser implements SummationInterface
 {
 	/**
 	 * {@inheritdoc}
 	 */
-	protected $_validTransactionCodes = array('15');
+	protected $_validTransactionCodes =
+		array(Object\SummationInterface::TRANSACTION_CODE);
 
 	const STATE_SUMMATION_POST_PARSED		= 'Summation post parsed';
 

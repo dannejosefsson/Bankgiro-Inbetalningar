@@ -14,6 +14,12 @@ namespace BGI\Row\Object;
 interface SummationInterface
 {
 	/**
+	 * Transaction code
+	 * @var string
+	 */
+	const TRANSACTION_CODE = '15';
+
+	/**
 	 * Get receiver bank account number.
 	 * @author	Daniel Josefsson <dannejosefsson@gmail.com>
 	 * @return	int|string

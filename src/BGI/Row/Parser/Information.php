@@ -14,12 +14,13 @@ use BGI\Row\Object as Object;
  * @author		Daniel Josefsson <dannejosefsson@gmail.com>
  * @uses		AbstractParser
  */
-class Information extends AbstractParser
+class Information extends AbstractParser implements InformationInterface
 {
 	/**
 	 * {@inheritdoc}
 	 */
-	protected $_validTransactionCodes = array('25');
+	protected $_validTransactionCodes =
+		array(Object\InformationInterface::TRANSACTION_CODE);
 
 	const STATE_INFORMATION_POST_PARSED		= 'Information post parsed';
 
